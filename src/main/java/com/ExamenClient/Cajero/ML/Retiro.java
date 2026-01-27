@@ -3,7 +3,7 @@ package com.ExamenClient.Cajero.ML;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
-public class RetiroJPA {
+public class Retiro {
 
     private int idRetiro;
 
@@ -17,10 +17,10 @@ public class RetiroJPA {
 
     private String estatus;
 
-    public RetiroJPA() {
+    public Retiro() {
     }
 
-    public RetiroJPA(int idRetiro, Cuentas cuentas, Cajero cajero, BigDecimal monto, String status) {
+    public Retiro(int idRetiro, Cuentas cuentas, Cajero cajero, BigDecimal monto, String status) {
         this.idRetiro = idRetiro;
         this.cuentas = cuentas;
         this.cajero = cajero;

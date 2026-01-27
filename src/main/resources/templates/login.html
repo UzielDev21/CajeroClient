@@ -1,15 +1,68 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
--->
-<html>
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <div>TODO write content</div>
-    </body>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Acceso Cajero</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/StyleLogin.css}">
+</head>
+<body>
+
+    <div class="atm-background">
+        <div class="atm-container">
+            
+            <div class="atm-header">
+                <div class="bank-logo">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <h3>Banca Segura</h3>
+                <p>Inserte sus credenciales</p>
+            </div>
+
+            <div class="atm-body">
+                <form th:action="@{/auth/login}" method="post">
+                    
+                    <div class="input-group mb-3 atm-input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" 
+                               name="username" 
+                               class="form-control" 
+                               placeholder="Usuario / ID Cliente" 
+                               required 
+                               autocomplete="off">
+                    </div>
+
+                    <div class="input-group mb-4 atm-input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" 
+                               name="password" 
+                               class="form-control" 
+                               placeholder="NIP / Contraseña" 
+                               required>
+                    </div>
+
+                    <div th:if="${loginErrorMessage != null}" class="alert alert-danger custom-alert" role="alert">
+                        <i class="fa-solid fa-circle-exclamation me-2"></i>
+                        <span th:text="${loginErrorMessage}"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-atm-primary">
+                            ACCEDER <i class="fa-solid fa-chevron-right ms-2"></i>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+
+            <div class="atm-footer">
+                <small><i class="fa-solid fa-lock"></i> Conexión Encriptada Segura</small>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

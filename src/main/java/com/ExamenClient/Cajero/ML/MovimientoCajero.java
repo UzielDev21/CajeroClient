@@ -2,7 +2,7 @@ package com.ExamenClient.Cajero.ML;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class MovimientoCajeroJPA {
+public class MovimientoCajero {
 
     private int idMovimiento;
     
@@ -14,10 +14,10 @@ public class MovimientoCajeroJPA {
 
     private String tipoMovimiento;
 
-    public MovimientoCajeroJPA() {
+    public MovimientoCajero() {
     }
 
-    public MovimientoCajeroJPA(int idMovimiento, Cajero cajero, Usuario usuario, String tipoMovimiento) {
+    public MovimientoCajero(int idMovimiento, Cajero cajero, Usuario usuario, String tipoMovimiento) {
         this.idMovimiento = idMovimiento;
         this.cajero = cajero;
         this.usuaio = usuario;

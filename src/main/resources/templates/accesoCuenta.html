@@ -1,28 +1,134 @@
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
-<body layout:fragment="body">
 
-<div class="container py-5">
-    <h3 class="mb-4">Acceso a Cuenta</h3>
+    <head>
+        <title>Validación de Seguridad</title>
+        <link rel="stylesheet" th:href="@{/css/StyleAcceso.css}">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    </head>
 
-    <div class="alert alert-danger" th:if="${mensajeError}" th:text="${mensajeError}"></div>
-    <div class="alert alert-success" th:if="${mensajeOk}" th:text="${mensajeOk}"></div>
+    <body layout:fragment="body">
 
-    <form th:action="@{/acceso-cuenta}" th:object="${accesoCuentaRequest}" method="post">
-        <div class="mb-3">
-            <label class="form-label">No. Cuenta</label>
-            <input type="number" class="form-control" th:field="*{noCuenta}" required>
+        <div class="security-background">
+            <div class="container d-flex justify-content-center align-items-center h-100">
+
+                <div class="atm-terminal-wrapper row">
+
+                    <div class="col-lg-6 col-md-12 p-4 d-flex flex-column justify-content-center screen-section">
+
+                        <div class="security-header mb-4 text-center">
+                            <i class="fa-solid fa-shield-halved fa-3x text-info mb-2"></i>
+                            <h4 class="text-white">Acceso Seguro</h4>
+                            <p class="text-white-50 small">Cajero ID: <span th:text="${session.idCajeroSeleccionado}">#</span></p>
+                        </div>
+
+                        <div th:if="${msgError}" class="alert alert-danger custom-alert animate-shake" role="alert">
+                            <i class="fa-solid fa-circle-xmark me-2"></i>
+                            <span th:text="${msgError}">Error</span>
+                        </div>
+
+                        <form th:action="@{/acceso-cuenta}" th:object="${accesoCuentaRequest}" method="post" id="authForm">
+
+                            <div class="mb-4">
+                                <label class="form-label text-white-50"><i class="fa-regular fa-credit-card me-2"></i>No. de Cuenta</label>
+                                <input type="number" 
+                                       class="form-control atm-input" 
+                                       th:field="*{noCuenta}" 
+                                       id="inputCuenta" 
+                                       placeholder="Ingrese su cuenta"
+                                       required 
+                                       autocomplete="off"
+                                       onclick="setFocus('inputCuenta')">
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-white-50"><i class="fa-solid fa-lock me-2"></i>NIP / PIN</label>
+                                <input type="password" 
+                                       class="form-control atm-input" 
+                                       th:field="*{nip}" 
+                                       id="inputNip" 
+                                       placeholder="****" 
+                                       required 
+                                       maxlength="4"
+                                       onclick="setFocus('inputNip')">
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button class="btn btn-success btn-lg btn-block glow-button" type="submit">
+                                    CONFIRMAR <i class="fa-solid fa-check ms-2"></i>
+                                </button>
+
+                                <a th:href="@{/cajeros/menu}" class="btn btn-outline-secondary btn-sm mt-2">
+                                    <i class="fa-solid fa-arrow-left me-2"></i> Cancelar / Cambiar Cajero
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="col-lg-6 col-md-12 p-4 keypad-section">
+                        <div class="keypad-grid">
+                            <button type="button" class="btn-key" onclick="pressKey('1')">1</button>
+                            <button type="button" class="btn-key" onclick="pressKey('2')">2</button>
+                            <button type="button" class="btn-key" onclick="pressKey('3')">3</button>
+                            <button type="button" class="btn-key" onclick="pressKey('4')">4</button>
+                            <button type="button" class="btn-key" onclick="pressKey('5')">5</button>
+                            <button type="button" class="btn-key" onclick="pressKey('6')">6</button>
+                            <button type="button" class="btn-key" onclick="pressKey('7')">7</button>
+                            <button type="button" class="btn-key" onclick="pressKey('8')">8</button>
+                            <button type="button" class="btn-key" onclick="pressKey('9')">9</button>
+
+                            <button type="button" class="btn-key btn-action-clear" onclick="clearInput()">
+                                <i class="fa-solid fa-delete-left"></i>
+                            </button>
+                            <button type="button" class="btn-key" onclick="pressKey('0')">0</button>
+                            <button type="button" class="btn-key btn-action-enter" onclick="submitForm()">
+                                <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                            </button>
+                        </div>
+                        <div class="text-center mt-3">
+                            <small class="text-muted"><i class="fa-solid fa-lock"></i> Teclado Seguro Encriptado</small>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">NIP</label>
-            <input type="number" class="form-control" th:field="*{nip}" required>
-        </div>
+        <script>
+            let currentInputId = 'inputCuenta'; // Foco por defecto
 
-        <button class="btn btn-primary" type="submit">Ingresar</button>
-    </form>
-</div>
+            function setFocus(id) {
+                currentInputId = id;
+                // Opcional: Añadir efecto visual al input seleccionado
+                document.querySelectorAll('.atm-input').forEach(el => el.style.borderColor = '#445');
+                document.getElementById(id).style.borderColor = '#00d2ff';
+            }
 
-</body>
+            function pressKey(key) {
+                const input = document.getElementById(currentInputId);
+                // Validar longitud máxima para NIP (4 dígitos usualmente)
+                if (currentInputId === 'inputNip' && input.value.length >= 4)
+                    return;
+
+                input.value = input.value + key;
+            }
+
+            function clearInput() {
+                const input = document.getElementById(currentInputId);
+                input.value = input.value.slice(0, -1); // Borrar último caracter
+            }
+
+            function submitForm() {
+                document.getElementById('authForm').submit();
+            }
+
+            // Seleccionar el primer campo al cargar
+            window.onload = function () {
+                setFocus('inputCuenta');
+            };
+        </script>
+
+    </body>
 </html>

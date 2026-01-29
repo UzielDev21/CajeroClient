@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
@@ -65,4 +66,42 @@ public class CajeroController {
         }
     }
 
+    @GetMapping("/{idCajero}")
+    public String Cajero(
+            @PathVariable int idCajero,
+            Model model, HttpSession session) {
+
+        String token = (String) session.getAttribute("jwtToken");
+
+        if (token == null) {
+            return "redirect:/auth/login";
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<Result<Cajero>> responseEntityCajero = restTemplate.exchange(
+                urlBase + "/api/cajeros/" + idCajero,
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<Result<Cajero>>() {
+        });
+
+        if (responseEntityCajero.getStatusCode().value() == 200) {
+
+            Result resultCajero = responseEntityCajero.getBody();
+            model.addAttribute(
+                    "Cajero",
+                    resultCajero.object);
+
+            String user = (String) session.getAttribute("loggedUsername");
+            model.addAttribute("UsuarioLogueado", user);
+
+            return "cajero";
+        } else {
+            return "error";
+        }
+    }
 }

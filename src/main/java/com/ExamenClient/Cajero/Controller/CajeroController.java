@@ -3,10 +3,13 @@ package com.ExamenClient.Cajero.Controller;
 import com.ExamenClient.Cajero.ML.Cajero;
 import com.ExamenClient.Cajero.ML.Result;
 import jakarta.servlet.http.HttpSession;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -72,16 +75,34 @@ public class CajeroController {
             Model model, HttpSession session) {
 
         String token = (String) session.getAttribute("jwtToken");
-
-        if (token == null) {
+        String rol = (String) session.getAttribute("rol");
+        
+        
+        if (token == null || rol == null) {
             return "redirect:/auth/login";
         }
 
+        Integer idCuenta = (Integer) session.getAttribute("idCuenta");
+        
+        if (idCuenta == null) {
+            return "redirect:/cajeros/menu";
+        }
+        
+        session.setAttribute(("idCajeroSeleccionado"), idCajero);
+        
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
         RestTemplate restTemplate = new RestTemplate();
+        
+        Map<String, Object> validarCajeroRequest = new HashMap<>();
+        validarCajeroRequest.put("idCajero", idCajero);
+        validarCajeroRequest.put("monto", 1);
+        
+        //terminar de revisar aqui, no esta terminado 
+        
         ResponseEntity<Result<Cajero>> responseEntityCajero = restTemplate.exchange(
                 urlBase + "/api/cajeros/" + idCajero,
                 HttpMethod.GET,
@@ -104,4 +125,7 @@ public class CajeroController {
             return "error";
         }
     }
+    
+    
+    
 }

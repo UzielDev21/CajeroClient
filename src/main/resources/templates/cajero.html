@@ -1,10 +1,120 @@
-<html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
     <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Menú Principal</title>
+        <link rel="stylesheet" th:href="@{/css/StyleMenuCajero.css}">
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     </head>
-    <body>
-        <div>TODO write content</div>
+
+    <body layout:fragment="body">
+
+        <div class="atm-menu-background">
+            <div class="container h-100 d-flex flex-column justify-content-center">
+
+                <div class="row mb-4 fade-in-down">
+                    <div class="col-12 d-flex justify-content-between align-items-center header-bar">
+                        <div>
+                            <h4 class="text-white-50 mb-0">Bienvenido,</h4>
+                            <h3 class="text-white fw-bold" th:text="${UsuarioLogueado}">Usuario</h3>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge badge-role" 
+                                  th:classappend="${esAdmin} ? 'bg-warning text-dark' : 'bg-info text-dark'"
+                                  th:text="${esAdmin} ? 'ADMINISTRADOR' : 'CLIENTE'">
+                                ROL
+                            </span>
+                            <div class="small text-white-50 mt-1">ID Cajero: <span th:text="${session.idCajeroSeleccionado}">#</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center mb-3 fade-in-down" th:if="${!cajeroDisponible}">
+                    <div class="col-md-8">
+                        <div class="alert alert-danger d-flex align-items-center" role="alert">
+                            <i class="fa-solid fa-triangle-exclamation fa-2x me-3"></i>
+                            <div>
+                                <strong>Servicio Limitado:</strong>
+                                <span th:text="${mensajeCajero}">El cajero no está disponible temporalmente.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-center mb-5 fade-in-down delay-1">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="balance-display-container">
+                            <div class="screen-glare"></div>
+                            <p class="mb-0 small text-uppercase text-muted">Saldo Disponible en Cuenta</p>
+
+                            <div th:if="${saldoUsuario != null}">
+                                <div class="balance-amount-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <span class="balance-value counter-anim" 
+                                          th:data-target="${saldoUsuario.saldo}" 
+                                          th:text="${saldoUsuario.saldo}">0.00</span>
+                                </div>
+                            </div>
+
+                            <div th:if="${saldoUsuario == null}" class="text-danger mt-2">
+                                <i class="fa-solid fa-circle-xmark"></i> <span th:text="${mensajeSaldo}">Error saldo</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4 justify-content-center options-grid">
+
+                    <div class="col-md-6 col-lg-5 fade-in-up delay-2" th:if="${esAdmin or esCliente}">
+
+                        <a th:if="${cajeroDisponible}" th:href="@{/cajeros/retiro}" class="btn-atm-option option-withdraw">
+                            <div class="icon-wrapper">
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                            </div>
+                            <div class="text-wrapper">
+                                <h5>Retirar Efectivo</h5>
+                                <small>Billetes de $200, $500, $1000</small>
+                            </div>
+                            <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                        </a>
+
+                        <div th:if="${!cajeroDisponible}" class="btn-atm-option option-disabled">
+                            <div class="icon-wrapper">
+                                <i class="fa-solid fa-ban"></i>
+                            </div>
+                            <div class="text-wrapper">
+                                <h5>Retiro No Disponible</h5>
+                                <small>Cajero fuera de servicio</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-5 fade-in-up delay-3" th:if="${esAdmin}">
+                        <a th:href="@{/cajeros/estatus}" class="btn-atm-option option-admin">
+                            <div class="icon-wrapper">
+                                <i class="fa-solid fa-screwdriver-wrench"></i>
+                            </div>
+                            <div class="text-wrapper">
+                                <h5>Administrar Cajero</h5>
+                                <small>Rellenar dinero / Ver Logs</small>
+                            </div>
+                            <i class="fa-solid fa-chevron-right arrow-icon"></i>
+                        </a>
+                    </div>
+
+                    <div class="col-12 text-center mt-5 fade-in-up delay-4">
+                        <a th:href="@{/cajeros/menu}" class="btn btn-outline-secondary rounded-pill px-4 me-2">
+                            <i class="fa-solid fa-arrow-left me-2"></i> Cambiar de Cajero
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <script th:src="@{/js/LogicCajero.js}"></script>
+
     </body>
 </html>

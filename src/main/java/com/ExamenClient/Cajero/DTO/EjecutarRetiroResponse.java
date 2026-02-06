@@ -1,6 +1,7 @@
 package com.ExamenClient.Cajero.DTO;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 
 public class EjecutarRetiroResponse {
 
@@ -8,14 +9,16 @@ public class EjecutarRetiroResponse {
     private int codigo;
 
     private String mensaje;
+    private List<DesgloseItem> desglose;
 
     public EjecutarRetiroResponse() {
 
     }
 
-    public EjecutarRetiroResponse(int codigo, String mensaje) {
+    public EjecutarRetiroResponse(int codigo, String mensaje, List<DesgloseItem> desglose) {
         this.codigo = codigo;
         this.mensaje = mensaje;
+        this.desglose = desglose;
     }
 
     public int getCodigo() {
@@ -32,6 +35,14 @@ public class EjecutarRetiroResponse {
 
     public void setMensaje(String mensaje) {
         this.mensaje = mensaje;
+    }
+
+    public List<DesgloseItem> getDesglose() {
+        return desglose;
+    }
+
+    public void setDesglose(List<DesgloseItem> desglose) {
+        this.desglose = desglose;
     }
 
 }

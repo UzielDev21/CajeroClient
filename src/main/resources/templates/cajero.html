@@ -47,7 +47,7 @@
                     <div class="col-md-8 col-lg-6">
                         <div class="balance-display-container">
                             <div class="screen-glare"></div>
-                            <p class="mb-0 small text-uppercase text-muted">Saldo Disponible en Cuenta</p>
+                            <p class="mb-0 small text-uppercase text-warning">Saldo Disponible en Cuenta</p>
 
                             <div th:if="${saldoUsuario != null}">
                                 <div class="balance-amount-wrapper">
@@ -69,7 +69,7 @@
 
                     <div class="col-md-6 col-lg-5 fade-in-up delay-2" th:if="${esAdmin or esCliente}">
 
-                        <a th:if="${cajeroDisponible}" th:href="@{/cajeros/retiro}" class="btn-atm-option option-withdraw">
+                        <a th:if="${cajeroDisponible}" th:href="@{/cajeros/retirar}" class="btn-atm-option option-withdraw">
                             <div class="icon-wrapper">
                                 <i class="fa-solid fa-money-bill-wave"></i>
                             </div>
@@ -114,7 +114,51 @@
             </div>
         </div>
 
-        <script th:src="@{/js/LogicCajero.js}"></script>
+        <script>
+
+            $(document).ready(function () {
+
+                // Animación de entrada de los elementos
+                $('.options-grid').hide().fadeIn(1000);
+
+                // Lógica del contador de Saldo
+                const $balanceElement = $('.counter-anim');
+
+                // Obtenemos el valor raw (ej: 1500.50)
+                let finalValue = parseFloat($balanceElement.attr('data-target'));
+
+                // Si el valor no es válido (null o undefined), ponemos 0
+                if (isNaN(finalValue)) {
+                    finalValue = 0;
+                    $balanceElement.text("0.00");
+                }
+
+                // Animación personalizada
+                $({countNum: 0}).animate({
+                    countNum: finalValue
+                },
+                        {
+                            duration: 2500, // Duración en milisegundos
+                            easing: 'swing',
+                            step: function () {
+                                // En cada paso formateamos el número
+                                $balanceElement.text(formatMoney(this.countNum));
+                            },
+                            complete: function () {
+                                // Al terminar, aseguramos el valor exacto
+                                $balanceElement.text(formatMoney(finalValue));
+                            }
+                        });
+
+                // Función para dar formato de moneda (Ej: 1,250.00)
+                function formatMoney(amount) {
+                    return amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                }
+
+            });
+
+
+        </script>
 
     </body>
 </html>

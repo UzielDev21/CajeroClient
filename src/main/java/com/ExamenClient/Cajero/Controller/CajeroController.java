@@ -4,6 +4,8 @@ import com.ExamenClient.Cajero.DTO.ConsultarSaldoCajeroResponse;
 import com.ExamenClient.Cajero.DTO.ConsultarSaldoUsuarioResponse;
 import com.ExamenClient.Cajero.DTO.EjecutarRetiroRequest;
 import com.ExamenClient.Cajero.DTO.EjecutarRetiroResponse;
+import com.ExamenClient.Cajero.DTO.RecargarCajeroRequest;
+import com.ExamenClient.Cajero.DTO.RecargarCajeroResponse;
 import com.ExamenClient.Cajero.DTO.ValidarDenominacionRequest;
 import com.ExamenClient.Cajero.DTO.ValidarDenominacionResponse;
 import com.ExamenClient.Cajero.DTO.ValidarSaldoCuentaRequest;
@@ -381,12 +383,128 @@ public class CajeroController {
 
         String token = (String) session.getAttribute("jwtToken");
         String rol = (String) session.getAttribute("rol");
+        Integer idCajero = (Integer) session.getAttribute("idCajeroSeleccionado");
 
         if (token == null || rol == null || rol.equalsIgnoreCase("Cliente")) {
             return "redirect:/auth/login";
         }
 
+        if (idCajero == null) {
+            return "redirect:/cajeros/menu";
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        HttpEntity<?> entity = new HttpEntity<>(headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        try {
+            ResponseEntity<Result<ConsultarSaldoCajeroResponse>> consultarSaldoCajeroResponse = restTemplate.exchange(
+                    urlBase + "/api/consultar-saldo-cajero/" + idCajero,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<Result<ConsultarSaldoCajeroResponse>>() {
+            });
+
+            if (consultarSaldoCajeroResponse.getStatusCode().value() == 200) {
+
+                Result<ConsultarSaldoCajeroResponse> resultSaldo = consultarSaldoCajeroResponse.getBody();
+
+                if (resultSaldo != null && resultSaldo.correct) {
+
+                    model.addAttribute(
+                            "saldoCajero",
+                            resultSaldo.object);
+                } else {
+                    model.addAttribute(
+                            "mensajeError",
+                            resultSaldo != null ? resultSaldo.errorMessage : "no se pudo obtener el saldo del cajero");
+                }
+
+            } else {
+                model.addAttribute(
+                        "mensajeError",
+                        "Error al consultar el cajero");
+            }
+
+        } catch (Exception ex) {
+            model.addAttribute(
+                    "mensajeError",
+                    "Error al cargar el estatus del cajero");
+            System.out.println("Error ViewEstatus: " + ex.getLocalizedMessage());
+        }
+
+        String user = (String) session.getAttribute("loggedUsername");
+        model.addAttribute("UsuarioLogueado", user);
+        model.addAttribute("idCajero", idCajero);
+
         return "estatus";
+    }
+
+    @PostMapping("/estatus")
+    public String RecargarCajero(Model model, HttpSession session) {
+
+        String token = (String) session.getAttribute("jwtToken");
+        String rol = (String) session.getAttribute("rol");
+        Integer idUsuario = (Integer) session.getAttribute("idUsuario");
+        Integer idCajero = (Integer) session.getAttribute("idCajeroSeleccionado");
+
+        if (token == null || rol == null || idUsuario == null || !rol.equalsIgnoreCase("Administrador")) {
+            return "redirect:/auht/login";
+        }
+
+        if (idCajero == null) {
+            return "redirect:/cajeros/menu";
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + token);
+        RestTemplate restTemplate = new RestTemplate();
+
+        try {
+
+            RecargarCajeroRequest recargarCajeroRequest = new RecargarCajeroRequest();
+            recargarCajeroRequest.setIdCajero(idCajero);
+            recargarCajeroRequest.setIdCajero(idCajero);
+
+            HttpEntity<RecargarCajeroRequest> entityRecargar = new HttpEntity<>(recargarCajeroRequest, headers);
+
+            ResponseEntity<Result<RecargarCajeroResponse>> recargaCajeroResponse = restTemplate.exchange(
+                    urlBase + "/api/recarga-cajero",
+                    HttpMethod.POST,
+                    entityRecargar,
+                    new ParameterizedTypeReference<Result<RecargarCajeroResponse>>() {
+            });
+
+            if (recargaCajeroResponse.getStatusCode().value() == 200) {
+
+                Result<RecargarCajeroResponse> resultRecarga = recargaCajeroResponse.getBody();
+
+                if (resultRecarga != null && resultRecarga.correct) {
+                    model.addAttribute(
+                            "mensajeError",
+                            resultRecarga.object.getMensaje());
+                } else {
+                    model.addAttribute(
+                            "mensajeError",
+                            resultRecarga != null ? resultRecarga.errorMessage : "No se pudo recargar el cajero");
+                }
+
+            } else {
+                model.addAttribute(
+                        "mensajeError", 
+                        "Error al comunicarse con el servicio de recarga");
+            }
+
+        } catch (Exception ex) {
+            System.out.println("Error RecargaCajero: " + ex.getLocalizedMessage());
+            model.addAttribute(
+                    "mensajeError", 
+                    "Ocurrio un error al recargar el cajero");
+        }
+
+        return "redirect:/cajeros/estatus";
     }
 
     private void recargarSaldoParaVista(Model model, Integer idCuenta, HttpHeaders headers, RestTemplate restTemplate) {
